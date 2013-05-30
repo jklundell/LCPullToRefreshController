@@ -10,10 +10,12 @@
 
 @interface CustomPullToRefresh ()
 
-@property (nonatomic, strong) UIImageView *rainbowTop;
-@property (nonatomic, strong) UIImageView *rainbowBot;
-@property (nonatomic, strong) UIImageView *arrowTop;
-@property (nonatomic, strong) UIImageView *arrowBot;
+@property (nonatomic, weak) UIView *viewTop;
+@property (nonatomic, weak) UIView *viewBot;
+@property (nonatomic, weak) UIActivityIndicatorView *aiTop;
+@property (nonatomic, weak) UIActivityIndicatorView *aiBot;
+@property (nonatomic, weak) UIImageView *arrowTop;
+@property (nonatomic, weak) UIImageView *arrowBot;
 
 @property (nonatomic, strong) LCPullToRefreshController *ptrc;
 @property (nonatomic, weak) UIScrollView *scrollView;
@@ -33,31 +35,50 @@
 
         self.ptrc = [[LCPullToRefreshController alloc] initWithScrollView:self.scrollView delegate:self];
 
-        NSMutableArray *animationImages = [NSMutableArray arrayWithCapacity:19];
-        for (int i=1; i<20; i++)
-            [animationImages addObject:[UIImage imageNamed:[NSString stringWithFormat:@"loading-%d.png",i]]];
+        CGRect frame = self.scrollView.frame;
+        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, -frame.size.height, frame.size.width, frame.size.height)];
+        view.backgroundColor = [UIColor grayColor];
+        [self.scrollView addSubview:view];
+        self.viewTop = view;
+        
+        frame = CGRectMake(0, frame.size.height, frame.size.width, frame.size.height);
+        view = [[UIView alloc] initWithFrame:CGRectMake(0, frame.size.height, frame.size.width, frame.size.height)];
+        view.backgroundColor = [UIColor grayColor];
+        [self.scrollView addSubview:view];
+        self.viewBot = view;
+        
+        UIActivityIndicatorView *aiView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+        frame = aiView.frame;
+        frame.origin.x = floorf((self.viewTop.frame.size.width - frame.size.width) / 2);
+        frame.origin.y = self.viewTop.frame.size.height - frame.size.height - 10;
+        aiView.frame = frame;
+        [self.viewTop addSubview:aiView];
+        self.aiTop = aiView;
+        
+        aiView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+        frame = aiView.frame;
+        frame.origin.x = floorf((self.viewBot.frame.size.width - frame.size.width) / 2);
+        frame.origin.y = 10;
+        aiView.frame = frame;
+        [self.viewBot addSubview:aiView];
+        self.aiBot = aiView;
+       
+        UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"big_arrow.png"]]; // 19x13
+        frame = imageView.frame;
+        frame.origin.x = floorf((self.viewTop.frame.size.width - frame.size.width) / 2);
+        frame.origin.y = self.aiTop.frame.origin.y + floorf((self.aiTop.frame.size.height - frame.size.height) / 2);
+        imageView.frame = frame;
+        [self.viewTop addSubview:imageView];
+        self.arrowTop = imageView;
 
-        self.rainbowTop = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"loading-1.png"]];
-        self.rainbowTop.frame = CGRectMake(0, -self.scrollView.frame.size.height, self.scrollView.frame.size.width, scrollView.frame.size.height);
-        self.rainbowTop.animationImages = animationImages;
-        self.rainbowTop.animationDuration = 2;
-        [scrollView addSubview:self.rainbowTop];
-
-        self.rainbowBot = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"loading-1.png"]];
-        self.rainbowBot.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
-        self.rainbowBot.frame = CGRectMake(0, self.scrollView.frame.size.height, self.scrollView.frame.size.width, scrollView.frame.size.height);
-        self.rainbowBot.animationImages = animationImages;
-        self.rainbowBot.animationDuration = 2;
-        [scrollView addSubview:self.rainbowBot];
-
-        self.arrowTop = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"big_arrow.png"]];
-        self.arrowTop.frame = CGRectMake(floorf((self.rainbowTop.frame.size.width-self.arrowTop.frame.size.width)/2), self.rainbowTop.frame.size.height - self.arrowTop.frame.size.height - 10 , self.arrowTop.frame.size.width, self.arrowTop.frame.size.height);
-        [self.rainbowTop addSubview:self.arrowTop];
-
-        self.arrowBot = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"big_arrow.png"]];
-        self.arrowBot.frame = CGRectMake(floorf((self.rainbowBot.frame.size.width-self.arrowBot.frame.size.width)/2), 10 , self.arrowBot.frame.size.width, self.arrowBot.frame.size.height);
-        self.arrowBot.transform  = CGAffineTransformMakeRotation(M_PI);
-        [self.rainbowBot addSubview:self.arrowBot];
+        imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"big_arrow.png"]];
+        frame = imageView.frame;
+        frame.origin.x = floorf((self.viewBot.frame.size.width - frame.size.width) / 2);
+        frame.origin.y = self.aiBot.frame.origin.y + floorf((self.aiBot.frame.size.height - frame.size.height) / 2);
+        imageView.frame = frame;
+        imageView.transform  = CGAffineTransformMakeRotation(M_PI);
+        [self.viewBot addSubview:imageView];
+        self.arrowBot = imageView;
     }
     return self;
 }
@@ -68,7 +89,7 @@
     CGFloat contentSizeArea = self.scrollView.contentSize.width*self.scrollView.contentSize.height;
     CGFloat frameArea = self.scrollView.frame.size.width*self.scrollView.frame.size.height;
     CGSize adjustedContentSize = contentSizeArea < frameArea ? self.scrollView.frame.size : self.scrollView.contentSize;
-    self.rainbowBot.frame = CGRectMake(0, adjustedContentSize.height, self.scrollView.frame.size.width, self.scrollView.frame.size.height);
+    self.viewBot.frame = CGRectMake(0, adjustedContentSize.height, self.scrollView.frame.size.width, self.scrollView.frame.size.height);
 }
 
 - (void)dealloc
@@ -80,8 +101,8 @@
 {
     [self.ptrc finishRefreshingDirection:LCRefreshDirectionTop animated:YES];
     [self.ptrc finishRefreshingDirection:LCRefreshDirectionBottom animated:YES];
-    [self.rainbowTop stopAnimating];
-    [self.rainbowBot stopAnimating];
+    [self.aiTop stopAnimating];
+    [self.aiBot stopAnimating];
     self.arrowBot.hidden = NO;
     self.arrowBot.transform  = CGAffineTransformMakeRotation(M_PI);
     self.arrowTop.hidden = NO;
@@ -102,12 +123,12 @@
 
 - (CGFloat)pullToRefreshController:(LCPullToRefreshController *)controller refreshingInsetForDirection:(LCRefreshDirection)direction
 {
-    return 30;
+    return self.aiTop.bounds.size.height + 20;
 }
 
 - (CGFloat)pullToRefreshController:(LCPullToRefreshController *)controller refreshableInsetForDirection:(LCRefreshDirection)direction
 {
-    return 30;
+    return self.aiTop.bounds.size.height + 20;
 }
 
 - (void)pullToRefreshController:(LCPullToRefreshController *)controller canEngageRefreshDirection:(LCRefreshDirection)direction
@@ -132,8 +153,8 @@
 {
     self.arrowTop.hidden = YES;
     self.arrowBot.hidden = YES;
-    [self.rainbowTop startAnimating];
-    [self.rainbowBot startAnimating];
+    [self.aiTop startAnimating];
+    [self.aiBot startAnimating];
     [self.delegate customPullToRefreshShouldRefresh:self];
 }
 
