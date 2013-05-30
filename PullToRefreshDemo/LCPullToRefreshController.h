@@ -72,8 +72,14 @@ typedef enum {
 @interface LCPullToRefreshController : NSObject
 
 /*
- * the only constructor you should use.
- * pass in the scrollview to be observed and
+ * Proxy for scrollView.contentInset.
+ * Use this if you change contentInset dynamically.
+ */
+@property (nonatomic, assign) UIEdgeInsets scrollViewContentInset;
+
+/*
+ * The only constructor you should use.
+ * Pass in the scrollview to be observed and
  * the delegate to receive call backs
  */
 - (id)initWithScrollView:(UIScrollView *)scrollView delegate:(id <LCPullToRefreshDelegate>)delegate;
@@ -85,7 +91,7 @@ typedef enum {
 - (void)finishRefreshingDirection:(LCRefreshDirection)direction animated:(BOOL)animated;
 
 /*
- * calls the above with animated = NO
+ * Calls the above with animated = NO
  */
 - (void)finishRefreshingDirection:(LCRefreshDirection)direction;
 
