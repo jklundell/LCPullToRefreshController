@@ -1,4 +1,21 @@
-# [Miso's](http://gomiso.com) Pull To Refresh Library ([blog post here](http://blog.gomiso.com/2012/03/22/yet-another-pull-to-refresh-library/))
+# LCPullToRefreshController
+
+LCPullToRefreshController is a fork of [MSPullToRefreshController](https://github.com/bogardon/MSPullToRefreshController), with several changes:
+
+* ARC
+* property notation
+* minor stylistic changes
+* stock UIActivityIndicator
+* scrollView.contentInset proxy
+
+The contentInset proxy is intended to allow the client and the PTRC to share the scrollView's contentInset.
+The client should access the PTRC's scrollViewContentInset instead of that of the scrollView.
+
+The demo is targeted at iOS 6, but should probably work on iOS 5 (not tested).
+
+The rest of the readme is (for now) a copy of the original; change 'MS' to 'LC' as required.
+
+## [Miso's](http://gomiso.com) Pull To Refresh Library ([blog post here](http://blog.gomiso.com/2012/03/22/yet-another-pull-to-refresh-library/))
 
 #### Authors
 Me and [Tim Lee](https://github.com/timothy1ee)
