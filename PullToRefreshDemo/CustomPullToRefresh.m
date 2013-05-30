@@ -133,20 +133,18 @@
 
 - (void)pullToRefreshController:(LCPullToRefreshController *)controller canEngageRefreshDirection:(LCRefreshDirection)direction
 {
-    [UIView beginAnimations:nil context:NULL];
-    [UIView setAnimationDuration:0.2];
-    self.arrowTop.transform = CGAffineTransformMakeRotation(M_PI);
-    self.arrowBot.transform = CGAffineTransformIdentity;
-    [UIView commitAnimations];
+    [UIView animateWithDuration:0.2 animations:^{
+        self.arrowTop.transform = CGAffineTransformMakeRotation(M_PI);
+        self.arrowBot.transform = CGAffineTransformIdentity;
+    }];
 }
 
 - (void)pullToRefreshController:(LCPullToRefreshController *)controller didDisengageRefreshDirection:(LCRefreshDirection)direction
 {
-    [UIView beginAnimations:nil context:NULL];
-    [UIView setAnimationDuration:0.2];
-    self.arrowTop.transform = CGAffineTransformIdentity;
-    self.arrowBot.transform  = CGAffineTransformMakeRotation(M_PI);
-    [UIView commitAnimations];
+    [UIView animateWithDuration:0.2 animations:^{
+        self.arrowTop.transform = CGAffineTransformIdentity;
+        self.arrowBot.transform  = CGAffineTransformMakeRotation(M_PI);
+    }];
 }
 
 - (void)pullToRefreshController:(LCPullToRefreshController *)controller didEngageRefreshDirection:(LCRefreshDirection)direction

@@ -135,18 +135,15 @@
             contentOffset = CGPointMake(adjustedContentSize.width + refreshingInset, 0);
             break;
     }
-
     if (animated) {
-        [UIView beginAnimations:nil context:NULL];
-        [UIView setAnimationDuration:0.2];
+        [UIView animateWithDuration:0.2 animations:^{
+            self.scrollView.contentInset = self.netContentInset;
+            self.scrollView.contentOffset = contentOffset;
+        }];
+    } else {
+        self.scrollView.contentInset = self.netContentInset;
+        self.scrollView.contentOffset = contentOffset;
     }
-    self.scrollView.contentInset = self.netContentInset;
-    self.scrollView.contentOffset = contentOffset;
-
-    if (animated) {
-        [UIView commitAnimations];
-    }
-
     self.refreshingDirections |= refreshingDirection;
     self.refreshableDirections &= ~refreshableDirection;
     if ([self.delegate respondsToSelector:@selector(pullToRefreshController:didEngageRefreshDirection:)]) {
@@ -182,15 +179,12 @@
             break;
     }
     if (animated) {
-        [UIView beginAnimations:nil context:NULL];
-        [UIView setAnimationDuration:0.2];
+        [UIView animateWithDuration:0.2 animations:^{
+            self.scrollView.contentInset = self.netContentInset;
+        }];
+    } else {
+        self.scrollView.contentInset = self.netContentInset;
     }
-    self.scrollView.contentInset = self.netContentInset;
-
-    if (animated) {
-        [UIView commitAnimations];
-    }
-
     self.refreshingDirections &= ~refreshingDirection;
 }
 
