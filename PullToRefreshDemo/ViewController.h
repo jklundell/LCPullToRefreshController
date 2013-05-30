@@ -9,17 +9,8 @@
 #import <UIKit/UIKit.h>
 #import "CustomPullToRefresh.h"
 
-@interface ViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, CustomPullToRefreshDelegate> {
-    UITableView *_table;
-    NSMutableArray *_primes;
-    CustomPullToRefresh *_ptr;
-}
+@interface ViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, CustomPullToRefreshDelegate>
 
-- (BOOL) isPrime:(unsigned long long)input;
-- (void) findNextPrime;
-- (void) endSearch;
-
-@property (nonatomic, retain) IBOutlet UITableView *table;
-
+@property (nonatomic, strong) IBOutlet UITableView *table;
 
 @end

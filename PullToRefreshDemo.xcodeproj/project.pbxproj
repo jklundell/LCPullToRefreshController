@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1CDEF1341757B3DD0043CE84 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1CDEF1331757B3DD0043CE84 /* Default-568h@2x.png */; };
 		721F79D7151BB5C000FA0D5E /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 721F79D6151BB5C000FA0D5E /* UIKit.framework */; };
 		721F79D9151BB5C000FA0D5E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 721F79D8151BB5C000FA0D5E /* Foundation.framework */; };
 		721F79DB151BB5C000FA0D5E /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 721F79DA151BB5C000FA0D5E /* CoreGraphics.framework */; };
@@ -16,7 +17,7 @@
 		721F79EA151BB5C100FA0D5E /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 721F79E9151BB5C100FA0D5E /* ViewController.m */; };
 		721F79ED151BB5C100FA0D5E /* ViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 721F79EB151BB5C100FA0D5E /* ViewController.xib */; };
 		721F79F8151BB91100FA0D5E /* CustomPullToRefresh.m in Sources */ = {isa = PBXBuildFile; fileRef = 721F79F7151BB91100FA0D5E /* CustomPullToRefresh.m */; };
-		721F79FB151BBEA300FA0D5E /* MSPullToRefreshController.m in Sources */ = {isa = PBXBuildFile; fileRef = 721F79F4151BB5DB00FA0D5E /* MSPullToRefreshController.m */; };
+		721F79FB151BBEA300FA0D5E /* LCPullToRefreshController.m in Sources */ = {isa = PBXBuildFile; fileRef = 721F79F4151BB5DB00FA0D5E /* LCPullToRefreshController.m */; };
 		721F7A26151BD94700FA0D5E /* loading-1.png in Resources */ = {isa = PBXBuildFile; fileRef = 721F7A00151BD94400FA0D5E /* loading-1.png */; };
 		721F7A27151BD94700FA0D5E /* loading-1@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 721F7A01151BD94500FA0D5E /* loading-1@2x.png */; };
 		721F7A28151BD94700FA0D5E /* loading-2.png in Resources */ = {isa = PBXBuildFile; fileRef = 721F7A02151BD94500FA0D5E /* loading-2.png */; };
@@ -61,6 +62,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1CDEF1331757B3DD0043CE84 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "../Default-568h@2x.png"; sourceTree = "<group>"; };
 		721F79D2151BB5C000FA0D5E /* PullToRefreshDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PullToRefreshDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		721F79D6151BB5C000FA0D5E /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		721F79D8151BB5C000FA0D5E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -74,8 +76,8 @@
 		721F79E8151BB5C100FA0D5E /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		721F79E9151BB5C100FA0D5E /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		721F79EC151BB5C100FA0D5E /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ViewController.xib; sourceTree = "<group>"; };
-		721F79F3151BB5DB00FA0D5E /* MSPullToRefreshController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSPullToRefreshController.h; sourceTree = "<group>"; };
-		721F79F4151BB5DB00FA0D5E /* MSPullToRefreshController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSPullToRefreshController.m; sourceTree = "<group>"; };
+		721F79F3151BB5DB00FA0D5E /* LCPullToRefreshController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LCPullToRefreshController.h; sourceTree = "<group>"; };
+		721F79F4151BB5DB00FA0D5E /* LCPullToRefreshController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LCPullToRefreshController.m; sourceTree = "<group>"; };
 		721F79F6151BB91100FA0D5E /* CustomPullToRefresh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomPullToRefresh.h; sourceTree = "<group>"; };
 		721F79F7151BB91100FA0D5E /* CustomPullToRefresh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomPullToRefresh.m; sourceTree = "<group>"; };
 		721F7A00151BD94400FA0D5E /* loading-1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "loading-1.png"; sourceTree = "<group>"; };
@@ -166,7 +168,7 @@
 		721F79DC151BB5C000FA0D5E /* PullToRefreshDemo */ = {
 			isa = PBXGroup;
 			children = (
-				721F79F5151BB5DF00FA0D5E /* MSPullToRefreshController */,
+				721F79F5151BB5DF00FA0D5E /* LCPullToRefreshController */,
 				721F79E5151BB5C100FA0D5E /* AppDelegate.h */,
 				721F79E6151BB5C100FA0D5E /* AppDelegate.m */,
 				721F79F6151BB91100FA0D5E /* CustomPullToRefresh.h */,
@@ -193,18 +195,19 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		721F79F5151BB5DF00FA0D5E /* MSPullToRefreshController */ = {
+		721F79F5151BB5DF00FA0D5E /* LCPullToRefreshController */ = {
 			isa = PBXGroup;
 			children = (
-				721F79F3151BB5DB00FA0D5E /* MSPullToRefreshController.h */,
-				721F79F4151BB5DB00FA0D5E /* MSPullToRefreshController.m */,
+				721F79F3151BB5DB00FA0D5E /* LCPullToRefreshController.h */,
+				721F79F4151BB5DB00FA0D5E /* LCPullToRefreshController.m */,
 			);
-			name = MSPullToRefreshController;
+			name = LCPullToRefreshController;
 			sourceTree = "<group>";
 		};
 		721F7A4C151BD94F00FA0D5E /* images */ = {
 			isa = PBXGroup;
 			children = (
+				1CDEF1331757B3DD0043CE84 /* Default-568h@2x.png */,
 				721F7A4D151BDAD100FA0D5E /* big_arrow.png */,
 				721F7A4E151BDAD100FA0D5E /* big_arrow@2x.png */,
 				721F7A00151BD94400FA0D5E /* loading-1.png */,
@@ -342,6 +345,7 @@
 				721F7A4B151BD94700FA0D5E /* loading-19@2x.png in Resources */,
 				721F7A4F151BDAD100FA0D5E /* big_arrow.png in Resources */,
 				721F7A50151BDAD100FA0D5E /* big_arrow@2x.png in Resources */,
+				1CDEF1341757B3DD0043CE84 /* Default-568h@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -352,7 +356,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				721F79FB151BBEA300FA0D5E /* MSPullToRefreshController.m in Sources */,
+				721F79FB151BBEA300FA0D5E /* LCPullToRefreshController.m in Sources */,
 				721F79E3151BB5C100FA0D5E /* main.m in Sources */,
 				721F79E7151BB5C100FA0D5E /* AppDelegate.m in Sources */,
 				721F79EA151BB5C100FA0D5E /* ViewController.m in Sources */,
@@ -437,10 +441,11 @@
 		721F79F1151BB5C100FA0D5E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "PullToRefreshDemo/PullToRefreshDemo-Prefix.pch";
 				INFOPLIST_FILE = "PullToRefreshDemo/PullToRefreshDemo-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -449,10 +454,11 @@
 		721F79F2151BB5C100FA0D5E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "PullToRefreshDemo/PullToRefreshDemo-Prefix.pch";
 				INFOPLIST_FILE = "PullToRefreshDemo/PullToRefreshDemo-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};

@@ -7,29 +7,20 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "MSPullToRefreshController.h"
+#import "LCPullToRefreshController.h"
 
 @protocol CustomPullToRefreshDelegate;
 
-@interface CustomPullToRefresh : NSObject <MSPullToRefreshDelegate> {
-    UIImageView *_rainbowTop;
-    UIImageView *_arrowTop;
-    UIImageView *_rainbowBot;
-    UIImageView *_arrowBot;
-    MSPullToRefreshController *_ptrc;
-    UIScrollView *_scrollView;
-    
-    id <CustomPullToRefreshDelegate> _delegate;
-}
+@interface CustomPullToRefresh : NSObject <LCPullToRefreshDelegate>
 
-- (id) initWithScrollView:(UIScrollView *)scrollView delegate:(id <CustomPullToRefreshDelegate>)delegate;
-- (void) endRefresh;
-- (void) startRefresh;
+- (id)initWithScrollView:(UIScrollView *)scrollView delegate:(id <CustomPullToRefreshDelegate>)delegate;
+- (void)endRefresh;
+- (void)startRefresh;
 
 @end
 
 @protocol CustomPullToRefreshDelegate <NSObject>
 
-- (void) customPullToRefreshShouldRefresh:(CustomPullToRefresh *)ptr;
+- (void)customPullToRefreshShouldRefresh:(CustomPullToRefresh *)ptr;
 
 @end

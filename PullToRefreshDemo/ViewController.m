@@ -7,43 +7,39 @@
 //
 
 #import "ViewController.h"
-#import "MSPullToRefreshController.h"
+#import "LCPullToRefreshController.h"
 
 @interface ViewController ()
+
+@property (nonatomic, strong) NSMutableArray *primes;
+@property (nonatomic, strong) CustomPullToRefresh *ptr;
 
 @end
 
 @implementation ViewController
-@synthesize table = _table;
 
-- (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        _primes = [[NSMutableArray alloc] initWithObjects:[NSNumber numberWithUnsignedLongLong:2], nil];
+        self.primes = [[NSMutableArray alloc] initWithObjects:@2ULL, nil];
     }
     return self;
 }
 
-- (void) dealloc {
-    [_table release];
-    [_primes release];
-    [_ptr release];
-    [super dealloc];
-}
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
     
-    _ptr = [[CustomPullToRefresh alloc] initWithScrollView:self.table delegate:self];
+    if (!self.ptr)
+        self.ptr = [[CustomPullToRefresh alloc] initWithScrollView:self.table delegate:self];
 }
 
 - (void)viewDidUnload
 {
     [super viewDidUnload];
-    [_ptr release], _ptr = nil;
-    // Release any retained subviews of the main view.
+    self.ptr = nil;
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
@@ -51,7 +47,8 @@
     return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
 }
 
-- (BOOL) isPrime:(unsigned long long)input {
+- (BOOL)isPrime:(unsigned long long)input
+{
     for (unsigned long long i = 2; i < input/2+1; i++) {
         if (input % i == 0)
             return NO;
@@ -59,52 +56,49 @@
     return YES;
 }
 
-- (void) findNextPrime {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    
-    unsigned long long lastPrime = [[_primes lastObject] unsignedLongLongValue];
-    unsigned long long potentialPrime = lastPrime + 1;
-    while ( [self isPrime:potentialPrime] == NO ) 
-        potentialPrime++;
-    
-    [_primes addObject:[NSNumber numberWithUnsignedLongLong:potentialPrime]];
-    
-    [NSThread sleepForTimeInterval:1];
-    [pool release];
-    [self performSelectorOnMainThread:@selector(endSearch) withObject:nil waitUntilDone:NO];
-}
-
-- (void) endSearch {
-    [_ptr endRefresh];
-    [self.table reloadData];
-}
-
 #pragma mark - UITableView Delegate Methods
 
-- (int) numberOfSectionsInTableView:(UITableView *)tableView {
+- (int)numberOfSectionsInTableView:(UITableView *)tableView
+{
     return 1;
 }
 
-- (int) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return _primes.count;
+- (int)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return self.primes.count;
 }
 
-- (UITableViewCell *) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
     static NSString *CellIdentifer = @"CellIdentifier";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifer];
     if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifer] autorelease];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifer];
     }
     
-    cell.textLabel.text = [[_primes objectAtIndex:indexPath.row] stringValue];
+    cell.textLabel.text = [self.primes[indexPath.row] stringValue];
     
     return cell;
 }
 
 #pragma mark - CustomPullToRefresh Delegate Methods
 
-- (void) customPullToRefreshShouldRefresh:(CustomPullToRefresh *)ptr {
-    [self performSelectorInBackground:@selector(findNextPrime) withObject:nil];
+- (void)customPullToRefreshShouldRefresh:(CustomPullToRefresh *)ptr
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        unsigned long long potentialPrime;
+        @autoreleasepool {
+            unsigned long long lastPrime = [[self.primes lastObject] unsignedLongLongValue];
+            potentialPrime = lastPrime + 1;
+            while ( [self isPrime:potentialPrime] == NO )
+                potentialPrime++;
+        }
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^(void){
+            [self.primes addObject:@(potentialPrime)];
+            [self.ptr endRefresh];
+            [self.table reloadData];
+        });
+    });
 }
 
 

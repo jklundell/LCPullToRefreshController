@@ -8,119 +8,133 @@
 
 #import "CustomPullToRefresh.h"
 
+@interface CustomPullToRefresh ()
+
+@property (nonatomic, strong) UIImageView *rainbowTop;
+@property (nonatomic, strong) UIImageView *rainbowBot;
+@property (nonatomic, strong) UIImageView *arrowTop;
+@property (nonatomic, strong) UIImageView *arrowBot;
+
+@property (nonatomic, strong) LCPullToRefreshController *ptrc;
+@property (nonatomic, weak) UIScrollView *scrollView;
+@property (nonatomic, weak) id <CustomPullToRefreshDelegate> delegate;
+
+@end
+
 @implementation CustomPullToRefresh
 
-- (id) initWithScrollView:(UIScrollView *)scrollView delegate:(id<CustomPullToRefreshDelegate>)delegate {
+- (id)initWithScrollView:(UIScrollView *)scrollView delegate:(id<CustomPullToRefreshDelegate>)delegate
+{
     self = [super init];
     if (self) {
-        _delegate = delegate;
-        _scrollView = [scrollView retain];
-        [_scrollView addObserver:self forKeyPath:@"contentSize" options:0 context:NULL];
+        self.delegate = delegate;
+        self.scrollView = scrollView;
+        [self.scrollView addObserver:self forKeyPath:@"contentSize" options:0 context:NULL];
 
-        _ptrc = [[MSPullToRefreshController alloc] initWithScrollView:_scrollView delegate:self];
+        self.ptrc = [[LCPullToRefreshController alloc] initWithScrollView:self.scrollView delegate:self];
 
         NSMutableArray *animationImages = [NSMutableArray arrayWithCapacity:19];
         for (int i=1; i<20; i++)
             [animationImages addObject:[UIImage imageNamed:[NSString stringWithFormat:@"loading-%d.png",i]]];
 
-        _rainbowTop = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"loading-1.png"]];
-        _rainbowTop.frame = CGRectMake(0, -_scrollView.frame.size.height, _scrollView.frame.size.width, scrollView.frame.size.height);
-        _rainbowTop.animationImages = animationImages;
-        _rainbowTop.animationDuration = 2;
-        [scrollView addSubview:_rainbowTop];
+        self.rainbowTop = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"loading-1.png"]];
+        self.rainbowTop.frame = CGRectMake(0, -self.scrollView.frame.size.height, self.scrollView.frame.size.width, scrollView.frame.size.height);
+        self.rainbowTop.animationImages = animationImages;
+        self.rainbowTop.animationDuration = 2;
+        [scrollView addSubview:self.rainbowTop];
 
-        _rainbowBot = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"loading-1.png"]];
-        _rainbowBot.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
-        _rainbowBot.frame = CGRectMake(0, _scrollView.frame.size.height, _scrollView.frame.size.width, scrollView.frame.size.height);
-        _rainbowBot.animationImages = animationImages;
-        _rainbowBot.animationDuration = 2;
-        [scrollView addSubview:_rainbowBot];
+        self.rainbowBot = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"loading-1.png"]];
+        self.rainbowBot.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
+        self.rainbowBot.frame = CGRectMake(0, self.scrollView.frame.size.height, self.scrollView.frame.size.width, scrollView.frame.size.height);
+        self.rainbowBot.animationImages = animationImages;
+        self.rainbowBot.animationDuration = 2;
+        [scrollView addSubview:self.rainbowBot];
 
+        self.arrowTop = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"big_arrow.png"]];
+        self.arrowTop.frame = CGRectMake(floorf((self.rainbowTop.frame.size.width-self.arrowTop.frame.size.width)/2), self.rainbowTop.frame.size.height - self.arrowTop.frame.size.height - 10 , self.arrowTop.frame.size.width, self.arrowTop.frame.size.height);
+        [self.rainbowTop addSubview:self.arrowTop];
 
-
-        _arrowTop = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"big_arrow.png"]];
-        _arrowTop.frame = CGRectMake(floorf((_rainbowTop.frame.size.width-_arrowTop.frame.size.width)/2), _rainbowTop.frame.size.height - _arrowTop.frame.size.height - 10 , _arrowTop.frame.size.width, _arrowTop.frame.size.height);
-        [_rainbowTop addSubview:_arrowTop];
-
-        _arrowBot = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"big_arrow.png"]];
-        _arrowBot.frame = CGRectMake(floorf((_rainbowBot.frame.size.width-_arrowBot.frame.size.width)/2), 10 , _arrowBot.frame.size.width, _arrowBot.frame.size.height);
-        _arrowBot.transform  = CGAffineTransformMakeRotation(M_PI);
-        [_rainbowBot addSubview:_arrowBot];
-        
+        self.arrowBot = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"big_arrow.png"]];
+        self.arrowBot.frame = CGRectMake(floorf((self.rainbowBot.frame.size.width-self.arrowBot.frame.size.width)/2), 10 , self.arrowBot.frame.size.width, self.arrowBot.frame.size.height);
+        self.arrowBot.transform  = CGAffineTransformMakeRotation(M_PI);
+        [self.rainbowBot addSubview:self.arrowBot];
     }
     return self;
 }
 
-- (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    NSLog(@"%@",NSStringFromCGSize(_scrollView.contentSize));
-    CGFloat contentSizeArea = _scrollView.contentSize.width*_scrollView.contentSize.height;
-    CGFloat frameArea = _scrollView.frame.size.width*_scrollView.frame.size.height;
-    CGSize adjustedContentSize = contentSizeArea < frameArea ? _scrollView.frame.size : _scrollView.contentSize;
-    _rainbowBot.frame = CGRectMake(0, adjustedContentSize.height, _scrollView.frame.size.width, _scrollView.frame.size.height);
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    NSLog(@"%@",NSStringFromCGSize(self.scrollView.contentSize));
+    CGFloat contentSizeArea = self.scrollView.contentSize.width*self.scrollView.contentSize.height;
+    CGFloat frameArea = self.scrollView.frame.size.width*self.scrollView.frame.size.height;
+    CGSize adjustedContentSize = contentSizeArea < frameArea ? self.scrollView.frame.size : self.scrollView.contentSize;
+    self.rainbowBot.frame = CGRectMake(0, adjustedContentSize.height, self.scrollView.frame.size.width, self.scrollView.frame.size.height);
 }
 
-- (void) dealloc {
-    [_scrollView removeObserver:self forKeyPath:@"contentSize"];
-    [_scrollView release];
-    [_ptrc release];
-    [_arrowTop release];
-    [_rainbowTop release];
-    [_rainbowBot release];
-    [_arrowBot release];
-    [super dealloc];
+- (void)dealloc
+{
+    [self.scrollView removeObserver:self forKeyPath:@"contentSize"];
 }
 
-- (void) endRefresh {
-    [_ptrc finishRefreshingDirection:MSRefreshDirectionTop animated:YES];
-    [_ptrc finishRefreshingDirection:MSRefreshDirectionBottom animated:YES];
-    [_rainbowTop stopAnimating];
-    [_rainbowBot stopAnimating];
-    _arrowBot.hidden = NO;
-    _arrowBot.transform  = CGAffineTransformMakeRotation(M_PI);
-    _arrowTop.hidden = NO;
-    _arrowTop.transform = CGAffineTransformIdentity;
+- (void)endRefresh
+{
+    [self.ptrc finishRefreshingDirection:LCRefreshDirectionTop animated:YES];
+    [self.ptrc finishRefreshingDirection:LCRefreshDirectionBottom animated:YES];
+    [self.rainbowTop stopAnimating];
+    [self.rainbowBot stopAnimating];
+    self.arrowBot.hidden = NO;
+    self.arrowBot.transform  = CGAffineTransformMakeRotation(M_PI);
+    self.arrowTop.hidden = NO;
+    self.arrowTop.transform = CGAffineTransformIdentity;
 }
 
-- (void) startRefresh {
-    [_ptrc startRefreshingDirection:MSRefreshDirectionTop];
+- (void)startRefresh
+{
+    [self.ptrc startRefreshingDirection:LCRefreshDirectionTop];
 }
 
-#pragma mark - MSPullToRefreshDelegate Methods
+#pragma mark - LCPullToRefreshDelegate Methods
 
-- (BOOL) pullToRefreshController:(MSPullToRefreshController *)controller canRefreshInDirection:(MSRefreshDirection)direction {
-    return direction == MSRefreshDirectionTop || direction == MSRefreshDirectionBottom;
+- (BOOL)pullToRefreshController:(LCPullToRefreshController *)controller canRefreshInDirection:(LCRefreshDirection)direction
+{
+    return direction == LCRefreshDirectionTop || direction == LCRefreshDirectionBottom;
 }
 
-- (CGFloat) pullToRefreshController:(MSPullToRefreshController *)controller refreshingInsetForDirection:(MSRefreshDirection)direction {
+- (CGFloat)pullToRefreshController:(LCPullToRefreshController *)controller refreshingInsetForDirection:(LCRefreshDirection)direction
+{
     return 30;
 }
 
-- (CGFloat) pullToRefreshController:(MSPullToRefreshController *)controller refreshableInsetForDirection:(MSRefreshDirection)direction {
+- (CGFloat)pullToRefreshController:(LCPullToRefreshController *)controller refreshableInsetForDirection:(LCRefreshDirection)direction
+{
     return 30;
 }
 
-- (void) pullToRefreshController:(MSPullToRefreshController *)controller canEngageRefreshDirection:(MSRefreshDirection)direction {
+- (void)pullToRefreshController:(LCPullToRefreshController *)controller canEngageRefreshDirection:(LCRefreshDirection)direction
+{
     [UIView beginAnimations:nil context:NULL];
     [UIView setAnimationDuration:0.2];
-    _arrowTop.transform = CGAffineTransformMakeRotation(M_PI);
-    _arrowBot.transform = CGAffineTransformIdentity;
+    self.arrowTop.transform = CGAffineTransformMakeRotation(M_PI);
+    self.arrowBot.transform = CGAffineTransformIdentity;
     [UIView commitAnimations];
 }
 
-- (void) pullToRefreshController:(MSPullToRefreshController *)controller didDisengageRefreshDirection:(MSRefreshDirection)direction {
+- (void)pullToRefreshController:(LCPullToRefreshController *)controller didDisengageRefreshDirection:(LCRefreshDirection)direction
+{
     [UIView beginAnimations:nil context:NULL];
     [UIView setAnimationDuration:0.2];
-    _arrowTop.transform = CGAffineTransformIdentity;
-    _arrowBot.transform  = CGAffineTransformMakeRotation(M_PI);
+    self.arrowTop.transform = CGAffineTransformIdentity;
+    self.arrowBot.transform  = CGAffineTransformMakeRotation(M_PI);
     [UIView commitAnimations];
 }
 
-- (void) pullToRefreshController:(MSPullToRefreshController *)controller didEngageRefreshDirection:(MSRefreshDirection)direction {
-    _arrowTop.hidden = YES;
-    _arrowBot.hidden = YES;
-    [_rainbowTop startAnimating];
-    [_rainbowBot startAnimating];
-    [_delegate customPullToRefreshShouldRefresh:self];
+- (void)pullToRefreshController:(LCPullToRefreshController *)controller didEngageRefreshDirection:(LCRefreshDirection)direction
+{
+    self.arrowTop.hidden = YES;
+    self.arrowBot.hidden = YES;
+    [self.rainbowTop startAnimating];
+    [self.rainbowBot startAnimating];
+    [self.delegate customPullToRefreshShouldRefresh:self];
 }
 
 @end

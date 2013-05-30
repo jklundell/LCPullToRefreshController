@@ -1,106 +1,113 @@
 //
-//  MSPullToRefreshController.m
+//  LCPullToRefreshController.m
 //
 //  Created by John Wu on 3/5/12.
 //  Copyright (c) 2012 TFM. All rights reserved.
+//  Modified by Jonathan Lundell 2013-05
 //
 
-#import "MSPullToRefreshController.h"
+#import "LCPullToRefreshController.h"
 
-@interface MSPullToRefreshController ()
+@interface LCPullToRefreshController ()
 
-@property (nonatomic, assign) MSRefreshingDirections refreshingDirections;
-@property (nonatomic, assign) MSRefreshableDirections refreshableDirections;
-@property (nonatomic, assign) id <MSPullToRefreshDelegate> delegate;
+// the main object
+@property (nonatomic, strong) UIScrollView *scrollView;
 
-- (void) _checkOffsetsForDirection:(MSRefreshDirection)direction change:(NSDictionary *)change;
+// flags to indicate where we are in the refresh sequence
+@property (nonatomic, assign) LCRefreshingDirections refreshingDirections;
+@property (nonatomic, assign) LCRefreshableDirections refreshableDirections;
+
+@property (nonatomic, weak) id <LCPullToRefreshDelegate> delegate;
+
+// used internally to capture the did end dragging state
+@property (nonatomic, assign) BOOL wasDragging;
 
 @end
 
-@implementation MSPullToRefreshController
+@implementation LCPullToRefreshController
 @synthesize refreshingDirections = _refreshingDirections;
 @synthesize refreshableDirections = _refreshableDirections;
-@synthesize delegate = _delegate;
 
 #pragma mark - Object Life Cycle
 
-- (id) initWithScrollView:(UIScrollView *)scrollView delegate:(id <MSPullToRefreshDelegate>)delegate {
+- (id)initWithScrollView:(UIScrollView *)scrollView delegate:(id <LCPullToRefreshDelegate>)delegate
+{
     self = [super init];
     if (self) {
-        // set ivars
-        _delegate = delegate;
-        _scrollView = [scrollView retain];
+        self.delegate = delegate;
+        self.scrollView = scrollView;
 
         // observe the contentOffset. NSKeyValueObservingOptionPrior is CRUCIAL!
-        [_scrollView addObserver:self forKeyPath:@"contentOffset" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld | NSKeyValueObservingOptionPrior context:NULL];
+        [self.scrollView addObserver:self forKeyPath:@"contentOffset" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld | NSKeyValueObservingOptionPrior context:NULL];
 
     }
-
     return self;
 }
 
-- (void) dealloc {
+- (void)dealloc
+{
     // basic clean up
-    [_scrollView removeObserver:self forKeyPath:@"contentOffset"];
-    [_scrollView release];
-    [super dealloc];
+    [self.scrollView removeObserver:self forKeyPath:@"contentOffset"];
 }
 
 #pragma mark - KVO
 
-- (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
     if ([keyPath isEqualToString:@"contentOffset"]) {
         // for each direction, check to see if refresh sequence needs to be updated.
-        for (MSRefreshDirection direction = MSRefreshDirectionTop; direction <= MSRefreshDirectionRight; direction++) {
+        for (LCRefreshDirection direction = LCRefreshDirectionTop; direction <= LCRefreshDirectionRight; direction++) {
             BOOL canRefresh = [_delegate pullToRefreshController:self canRefreshInDirection:direction];
             if (canRefresh)
                 [self _checkOffsetsForDirection:direction change:change];
         }
 
-        _wasDragging = _scrollView.dragging;
+        self.wasDragging = self.scrollView.dragging;
     }
 }
 
 #pragma mark - Public Methods
 
-- (void) startRefreshingDirection:(MSRefreshDirection)direction {
+- (void)startRefreshingDirection:(LCRefreshDirection)direction
+{
     [self startRefreshingDirection:direction animated:NO];
 }
 
-- (void) startRefreshingDirection:(MSRefreshDirection)direction animated:(BOOL)animated {
-    MSRefreshingDirections refreshingDirection = MSRefreshingDirectionNone;
-    MSRefreshableDirections refreshableDirection = MSRefreshableDirectionNone;
-    UIEdgeInsets contentInset = _scrollView.contentInset;
+- (void)startRefreshingDirection:(LCRefreshDirection)direction animated:(BOOL)animated
+{
+    LCRefreshingDirections refreshingDirection = LCRefreshingDirectionNone;
+    LCRefreshableDirections refreshableDirection = LCRefreshableDirectionNone;
+    UIEdgeInsets contentInset = self.scrollView.contentInset;
     CGPoint contentOffset = CGPointZero;
 
     CGFloat refreshingInset = [_delegate pullToRefreshController:self refreshingInsetForDirection:direction];
 
-    CGFloat contentSizeArea = _scrollView.contentSize.width*_scrollView.contentSize.height;
-    CGFloat frameArea = _scrollView.frame.size.width*_scrollView.frame.size.height;
-    CGSize adjustedContentSize = contentSizeArea < frameArea ? _scrollView.frame.size : _scrollView.contentSize;
+    CGFloat contentSizeArea = self.scrollView.contentSize.width*self.scrollView.contentSize.height;
+    CGFloat frameArea = self.scrollView.frame.size.width*self.scrollView.frame.size.height;
+    CGSize adjustedContentSize = contentSizeArea < frameArea ? self.scrollView.frame.size : self.scrollView.contentSize;
 
     switch (direction) {
-        case MSRefreshDirectionTop:
-            refreshableDirection = MSRefreshableDirectionTop;
-            refreshingDirection = MSRefreshingDirectionTop;
+        case LCRefreshDirectionTop:
+            refreshableDirection = LCRefreshableDirectionTop;
+            refreshingDirection = LCRefreshingDirectionTop;
             contentInset = UIEdgeInsetsMake(refreshingInset, contentInset.left, contentInset.bottom, contentInset.right);
             contentOffset = CGPointMake(0, -refreshingInset);
             break;
-        case MSRefreshDirectionLeft:
-            refreshableDirection = MSRefreshableDirectionLeft;
-            refreshingDirection = MSRefreshingDirectionLeft;
+        case LCRefreshDirectionLeft:
+            refreshableDirection = LCRefreshableDirectionLeft;
+            refreshingDirection = LCRefreshingDirectionLeft;
             contentInset = UIEdgeInsetsMake(contentInset.top, refreshingInset, contentInset.bottom, contentInset.right);
             contentOffset = CGPointMake(-refreshingInset, 0);
             break;
-        case MSRefreshDirectionBottom:
-            refreshableDirection = MSRefreshableDirectionBottom;
-            refreshingDirection = MSRefreshingDirectionBottom;
+        case LCRefreshDirectionBottom:
+            refreshableDirection = LCRefreshableDirectionBottom;
+            refreshingDirection = LCRefreshingDirectionBottom;
             contentInset = UIEdgeInsetsMake(contentInset.top, contentInset.left, refreshingInset, contentInset.right);
             contentOffset = CGPointMake(0, adjustedContentSize.height + refreshingInset);
             break;
-        case MSRefreshDirectionRight:
-            refreshableDirection = MSRefreshableDirectionRight;
-            refreshingDirection = MSRefreshingDirectionRight;
+        case LCRefreshDirectionRight:
+            refreshableDirection = LCRefreshableDirectionRight;
+            refreshingDirection = LCRefreshingDirectionRight;
             contentInset = UIEdgeInsetsMake(contentInset.top, contentInset.left, contentInset.bottom, refreshingInset);
             contentOffset = CGPointMake(adjustedContentSize.width + refreshingInset, 0);
             break;
@@ -112,8 +119,8 @@
         [UIView beginAnimations:nil context:NULL];
         [UIView setAnimationDuration:0.2];
     }
-    _scrollView.contentInset = contentInset;
-    _scrollView.contentOffset = contentOffset;
+    self.scrollView.contentInset = contentInset;
+    self.scrollView.contentOffset = contentOffset;
 
     if (animated) {
         [UIView commitAnimations];
@@ -126,28 +133,30 @@
     }
 }
 
-- (void) finishRefreshingDirection:(MSRefreshDirection)direction {
+- (void)finishRefreshingDirection:(LCRefreshDirection)direction
+{
     [self finishRefreshingDirection:direction animated:NO];
 }
 
-- (void) finishRefreshingDirection:(MSRefreshDirection)direction animated:(BOOL)animated {
-    MSRefreshingDirections refreshingDirection = MSRefreshingDirectionNone;
-    UIEdgeInsets contentInset = _scrollView.contentInset;
+- (void)finishRefreshingDirection:(LCRefreshDirection)direction animated:(BOOL)animated
+{
+    LCRefreshingDirections refreshingDirection = LCRefreshingDirectionNone;
+    UIEdgeInsets contentInset = self.scrollView.contentInset;
     switch (direction) {
-        case MSRefreshDirectionTop:
-            refreshingDirection = MSRefreshingDirectionTop;
+        case LCRefreshDirectionTop:
+            refreshingDirection = LCRefreshingDirectionTop;
             contentInset = UIEdgeInsetsMake(0, contentInset.left, contentInset.bottom, contentInset.right);
             break;
-        case MSRefreshDirectionLeft:
-            refreshingDirection = MSRefreshingDirectionLeft;
+        case LCRefreshDirectionLeft:
+            refreshingDirection = LCRefreshingDirectionLeft;
             contentInset = UIEdgeInsetsMake(contentInset.top, 0, contentInset.bottom, contentInset.right);
             break;
-        case MSRefreshDirectionBottom:
-            refreshingDirection = MSRefreshingDirectionBottom;
+        case LCRefreshDirectionBottom:
+            refreshingDirection = LCRefreshingDirectionBottom;
             contentInset = UIEdgeInsetsMake(contentInset.top, contentInset.left, 0, contentInset.right);
             break;
-        case MSRefreshDirectionRight:
-            refreshingDirection = MSRefreshingDirectionRight;
+        case LCRefreshDirectionRight:
+            refreshingDirection = LCRefreshingDirectionRight;
             contentInset = UIEdgeInsetsMake(contentInset.top, contentInset.left, contentInset.bottom, 0);
             break;
         default:
@@ -157,7 +166,7 @@
         [UIView beginAnimations:nil context:NULL];
         [UIView setAnimationDuration:0.2];
     }
-    _scrollView.contentInset = contentInset;
+    self.scrollView.contentInset = contentInset;
 
     if (animated) {
         [UIView commitAnimations];
@@ -168,46 +177,46 @@
 
 #pragma mark - Private Methods
 
-- (void) _checkOffsetsForDirection:(MSRefreshDirection)direction change:(NSDictionary *)change {
-
+- (void)_checkOffsetsForDirection:(LCRefreshDirection)direction change:(NSDictionary *)change
+{
     // define some local ivars that disambiguates according to direction
-    CGPoint oldOffset = [[change objectForKey:NSKeyValueChangeOldKey] CGPointValue];
+    CGPoint oldOffset = [change[NSKeyValueChangeOldKey] CGPointValue];
 
-    MSRefreshingDirections refreshingDirection = MSRefreshingDirectionNone;
-    MSRefreshableDirections refreshableDirection = MSRefreshableDirectionNone;
+    LCRefreshingDirections refreshingDirection = LCRefreshingDirectionNone;
+    LCRefreshableDirections refreshableDirection = LCRefreshableDirectionNone;
     BOOL canEngage = NO;
-    UIEdgeInsets contentInset = _scrollView.contentInset;
+    UIEdgeInsets contentInset = self.scrollView.contentInset;
 
     CGFloat refreshableInset = [_delegate pullToRefreshController:self refreshableInsetForDirection:direction];
     CGFloat refreshingInset = [_delegate pullToRefreshController:self refreshingInsetForDirection:direction];
 
-    CGFloat contentSizeArea = _scrollView.contentSize.width*_scrollView.contentSize.height;
-    CGFloat frameArea = _scrollView.frame.size.width*_scrollView.frame.size.height;
-    CGSize adjustedContentSize = contentSizeArea < frameArea ? _scrollView.frame.size : _scrollView.contentSize;
+    CGFloat contentSizeArea = self.scrollView.contentSize.width*self.scrollView.contentSize.height;
+    CGFloat frameArea = self.scrollView.frame.size.width*self.scrollView.frame.size.height;
+    CGSize adjustedContentSize = contentSizeArea < frameArea ? self.scrollView.frame.size : self.scrollView.contentSize;
 
     switch (direction) {
-        case MSRefreshDirectionTop:
-            refreshingDirection = MSRefreshingDirectionTop;
-            refreshableDirection = MSRefreshableDirectionTop;
+        case LCRefreshDirectionTop:
+            refreshingDirection = LCRefreshingDirectionTop;
+            refreshableDirection = LCRefreshableDirectionTop;
             canEngage = oldOffset.y < - refreshableInset;
             contentInset = UIEdgeInsetsMake(refreshingInset, contentInset.left, contentInset.bottom, contentInset.right);
             break;
-        case MSRefreshDirectionLeft:
-            refreshingDirection = MSRefreshingDirectionLeft;
-            refreshableDirection = MSRefreshableDirectionLeft;
+        case LCRefreshDirectionLeft:
+            refreshingDirection = LCRefreshingDirectionLeft;
+            refreshableDirection = LCRefreshableDirectionLeft;
             canEngage = oldOffset.x < -refreshableInset;
             contentInset = UIEdgeInsetsMake(contentInset.top, refreshingInset, contentInset.bottom, contentInset.right);
             break;
-        case MSRefreshDirectionBottom:
-            refreshingDirection = MSRefreshingDirectionBottom;
-            refreshableDirection = MSRefreshableDirectionBottom;
-            canEngage = (oldOffset.y + _scrollView.frame.size.height - adjustedContentSize.height  > refreshableInset);
+        case LCRefreshDirectionBottom:
+            refreshingDirection = LCRefreshingDirectionBottom;
+            refreshableDirection = LCRefreshableDirectionBottom;
+            canEngage = (oldOffset.y + self.scrollView.frame.size.height - adjustedContentSize.height  > refreshableInset);
             contentInset = UIEdgeInsetsMake(contentInset.top, contentInset.left, refreshingInset, contentInset.right);
             break;
-        case MSRefreshDirectionRight:
-            refreshingDirection = MSRefreshingDirectionRight;
-            refreshableDirection = MSRefreshableDirectionRight;
-            canEngage = oldOffset.x + _scrollView.frame.size.width - adjustedContentSize.width > refreshableInset;
+        case LCRefreshDirectionRight:
+            refreshingDirection = LCRefreshingDirectionRight;
+            refreshableDirection = LCRefreshableDirectionRight;
+            canEngage = oldOffset.x + self.scrollView.frame.size.width - adjustedContentSize.width > refreshableInset;
             contentInset = UIEdgeInsetsMake(contentInset.top, contentInset.left, contentInset.bottom, refreshingInset);
             break;
         default:
@@ -218,16 +227,16 @@
         // only go in here if the requested direction is enabled and not refreshing
         if (canEngage) {
             // only go in here if user pulled past the inflection offset
-            if (_wasDragging != _scrollView.dragging && _scrollView.decelerating && [change objectForKey:NSKeyValueChangeNotificationIsPriorKey] && (self.refreshableDirections & refreshableDirection)) {
+            if (self.wasDragging != self.scrollView.dragging && self.scrollView.decelerating && change[NSKeyValueChangeNotificationIsPriorKey] && (self.refreshableDirections & refreshableDirection)) {
 
                 // if you are decelerating, it means you've stopped dragging.
                 self.refreshingDirections |= refreshingDirection;
                 self.refreshableDirections &= ~refreshableDirection;
-                _scrollView.contentInset = contentInset;
+                self.scrollView.contentInset = contentInset;
                 if ([_delegate respondsToSelector:@selector(pullToRefreshController:didEngageRefreshDirection:)]) {
                     [_delegate pullToRefreshController:self didEngageRefreshDirection:direction];
                 }
-            } else if (_scrollView.dragging && !_scrollView.decelerating && !(self.refreshableDirections & refreshableDirection)) {
+            } else if (self.scrollView.dragging && !self.scrollView.decelerating && !(self.refreshableDirections & refreshableDirection)) {
                 // only go in here the first time you've dragged past releasable offset
                 self.refreshableDirections |= refreshableDirection;
                 if ([_delegate respondsToSelector:@selector(pullToRefreshController:canEngageRefreshDirection:)]) {
@@ -242,7 +251,6 @@
             }
         }
     }
-
 }
 
 @end
